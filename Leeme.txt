@@ -1,0 +1,23 @@
+status: dev
+start at: 28/05/2022 09:45
+
+
+Description: Prueba de ingeniero backend Resuelve
+
+
+--- Uses ---
+Nodejs 16.15.0
+Javascript
+
+
+--- Features ---
+
+
+
+--- Modules ---
+express
+
+
+
+--- Dev Modules ---
+nodemon
