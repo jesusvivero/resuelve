@@ -46,45 +46,60 @@ controller.calculateSalary = (req, res, next) => {
   res.json(playersSalary);
 }*/
 
-const getLevel = ({ level }, player) => {
-  return (level === player.nivel);
+const getLevel = ({ level }, playerLevel) => {
+  return (level === playerLevel);
 }
 
 controller.calculateSalary = (req, res, next) => {
-  const players = req.body.jugadores;
-  let totalGoals = 0;
-  let globalGoal = 0;
+
+  // Debido a que el codigo fuente esta en ingles y el JSON está en espanol, se extraen los valores en variables para no mesclar el ingles con el espanol
+  const players = req.body.jugadores; // Se obtiene el objeto con la información del JSON
+  //
+  let totalTeamGoals = 0;
+  let totalGoalsLevels = 0;
 
   // Calcular el puntaje global
   players.forEach((player, index) => {
 
-    const currentLevel = levelList.find(level => getLevel(level, player));
-    totalGoals += player.goles;
-    globalGoal += currentLevel.goals;
+    // Debido a que el codigo fuente esta en ingles y el JSON está en espanol, se extraen los valores en variables para no mesclar el ingles con el espanol
+    const playerGoals = player.goles;
+    const playerLevel = player.nivel;
+    //
+
+    const currentLevel = levelList.find(level => getLevel(level, playerLevel));
+    totalTeamGoals += playerGoals;
+    totalGoalsLevels += currentLevel.goals;
 
   });
 
-  console.log(totalGoals, globalGoal);
-  const teamPercentage = totalGoals / globalGoal;
+  console.log(totalTeamGoals, totalGoalsLevels);
+  const teamPercentage = totalTeamGoals / totalGoalsLevels; // porcentaje total del equipo
   console.log(teamPercentage);
 
   // Calcular puntaje personal
-  const personalBonus = players.map((player, index) => {
-    const currentLevel = levelList.find(level => getLevel(level, player));
-    const personalPercentage = player.goles / currentLevel.goals;
-    const bonusPercentage = (teamPercentage + personalPercentage) / 2;
-    //console.log(player.nombre, currentLevel);
-    //const correctLevel = player.nivel !== currentLevel.level ? currentLevel.level : player.nivel;
-    //const bonus = Number(Math.round((player.bono * (player.goles / currentLevel.goals)) + 'e2') + 'e-2');
-    const bonus = customRound(player.bono * bonusPercentage, 2);
-    //const bonus = Number.parseFloat((player.bono * (player.goles / currentLevel.goals)).toFixed(2));
+  const playersResult = players.map((player, index) => {
+
+    // Debido a que el codigo fuente esta en ingles y el JSON está en espanol, se extraen los valores en variables para no mesclar el ingles con el espanol
+    const playerGoals = player.goles;
+    const playerLevel = player.nivel;
+    const playerSalary = player.sueldo;
+    const playerBonus = player.bono;
+    //
+    const currentLevel = levelList.find(level => getLevel(level, playerLevel));
+    const playerPercentage = playerGoals / currentLevel.goals;
+    const bonusPercentage = (teamPercentage + playerPercentage) / 2;
+
+    const bonus = customRound(playerBonus * bonusPercentage, 2);
+
     return {
       ...player,
-      sueldo_completo: player.sueldo + bonus
+      sueldo_completo: customRound(playerSalary + bonus, 2)
     }
+
   });
 
-  res.json(personalBonus);
+  res.json(playersResult);
+
 }
 
 
