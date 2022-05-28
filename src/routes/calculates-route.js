@@ -3,5 +3,5 @@ const { calculateSalary } = require('../controllers/calculates-controller');
 
 // Exportamos todas las rutas de calculo
 module.exports = (app) => {
-  app.get('/calculate/', calculateSalary);
+  app.post('/calculate/', calculateSalary);
 };
