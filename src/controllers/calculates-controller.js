@@ -1,4 +1,4 @@
-const customRound = require('../helpers/round');
+const customRound = require('../helpers/custom-round');
 
 const controller = {};
 
@@ -54,21 +54,36 @@ controller.calculateSalary = (req, res, next) => {
   const players = req.body.jugadores;
   let totalGoals = 0;
   let globalGoal = 0;
-  const personalBonus = players.map((player, index) => {
+
+  // Calcular el puntaje global
+  players.forEach((player, index) => {
+
     const currentLevel = levelList.find(level => getLevel(level, player));
-    console.log(player.nombre, currentLevel);
-    //const correctLevel = player.nivel !== currentLevel.level ? currentLevel.level : player.nivel;
-    //const bonus = Number(Math.round((player.bono * (player.goles / currentLevel.goals)) + 'e2') + 'e-2');
-    const bonus = customRound(player.bono * (player.goles / currentLevel.goals), 2);
-    //const bonus = Number.parseFloat((player.bono * (player.goles / currentLevel.goals)).toFixed(2));
     totalGoals += player.goles;
     globalGoal += currentLevel.goals;
+
+  });
+
+  console.log(totalGoals, globalGoal);
+  const teamPercentage = totalGoals / globalGoal;
+  console.log(teamPercentage);
+
+  // Calcular puntaje personal
+  const personalBonus = players.map((player, index) => {
+    const currentLevel = levelList.find(level => getLevel(level, player));
+    const personalPercentage = player.goles / currentLevel.goals;
+    const bonusPercentage = (teamPercentage + personalPercentage) / 2;
+    //console.log(player.nombre, currentLevel);
+    //const correctLevel = player.nivel !== currentLevel.level ? currentLevel.level : player.nivel;
+    //const bonus = Number(Math.round((player.bono * (player.goles / currentLevel.goals)) + 'e2') + 'e-2');
+    const bonus = customRound(player.bono * bonusPercentage, 2);
+    //const bonus = Number.parseFloat((player.bono * (player.goles / currentLevel.goals)).toFixed(2));
     return {
       ...player,
-      sueldo_completo: bonus
+      sueldo_completo: player.sueldo + bonus
     }
   });
-  console.log(totalGoals, globalGoal);
+
   res.json(personalBonus);
 }
 
