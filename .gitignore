@@ -2,7 +2,3 @@
 
 /node_modules
 .env
-
-
-/src/configs/server.js
-/src/helpers/send-response.js
