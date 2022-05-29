@@ -1,0 +1,47 @@
+{
+  "teams": [
+    {
+      "name":"azul",
+      "levels": [
+        {
+          "level": "A",
+          "goals": 5
+        },
+        {
+          "level": "B",
+          "goals": 10
+        },
+        {
+          "level": "C",
+          "goals": 15
+        },
+        {
+          "level": "Cuauh",
+          "goals": 20
+        }
+      ]
+    },
+    {
+      "name":"rojo",
+      "levels": [
+        {
+          "level": "A",
+          "goals": 6
+        },
+        {
+          "level": "B",
+          "goals": 12
+        },
+        {
+          "level": "C",
+          "goals": 19
+        },
+        {
+          "level": "Cuauh",
+          "goals": 28
+        }
+      ]
+    }
+
+  ]
+}

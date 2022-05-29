@@ -22,17 +22,6 @@ app.use(express.urlencoded({ extended: false })); // Indicamos que solo lea dato
 app.use('/api', appRoutes); // Le agregamos las rutas a la app
 
 
-/* Metodos */
-app.start = () => { // Para iniciar la app
-  try {
-    app.listen(app.get('port'), () => {
-      console.log('Server on port:', app.get('port'));
-    });
-  } catch (err) {
-    console.error(err);
-  }
-};
-
 // Para que todos los errores capturados se impriman en la consola del servidor
 app.use((err, req, res, next) => {
   console.log(err);
@@ -41,6 +30,17 @@ app.use((err, req, res, next) => {
 app.use((err, req, res, next) => {
   sendErrorResponse(req, res, err.message || err)
 });
+
+/* Metodos */
+app.start = () => { // Para iniciar la app
+  try {
+    app.listen(app.get('port'), () => {
+      console.log(`Server on http://localhost:${app.get('port')}/`);
+    });
+  } catch (err) {
+    console.error(err);
+  }
+};
 
 
 module.exports = app;
