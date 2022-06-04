@@ -35,3 +35,9 @@ function sendErrorResponse(req, res, message, status) {
   sendResponse(req, res, { message, status, error: true });
 
 }
+
+module.exports = {
+  sendResponse,
+  sendSuccessResponse,
+  sendErrorResponse
+}

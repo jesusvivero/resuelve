@@ -24,8 +24,8 @@ app.use('/api', appRoutes); // Le agregamos las rutas a la app
 
 // Para que todos los errores capturados se impriman en la consola del servidor
 app.use((err, req, res, next) => {
-  console.log(err);
-  next();
+  console.log(err.message || err);
+  next(err);
 });
 app.use((err, req, res, next) => {
   sendErrorResponse(req, res, err.message || err)

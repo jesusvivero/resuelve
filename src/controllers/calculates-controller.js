@@ -1,5 +1,10 @@
 const customRound = require('../helpers/custom-round');
 const { getCurrentTeamLevel } = require('../data/teams-levels');
+//const genError = require('../helpers/error');
+//const { sendErrorResponse } = require('../helpers/send-response');
+
+const { validatePlayersData, validateTeamsData } = require('../helpers/json-validations');
+//const { validateNumber, validateIngeter, validateObjectProperty } = require('../helpers/type-validations');
 
 // Declaracion del controlador que sera exportado
 const controller = {};
@@ -8,10 +13,11 @@ const controller = {};
 
 
 
+
+
 // Proceso para calcular los sueldos de la lista de jugadores
 const calculateSalaries = (players, teamName) => {
 
-  //
   const teamsTotals = new Object(); // Objeto de niveles por equipos
   let playersResult; // Para el Array de jugadores mutable
 
@@ -23,6 +29,7 @@ const calculateSalaries = (players, teamName) => {
     const playerLevel = player.nivel;
     const playerTeam = player.equipo || teamName; // Si el jugador no tiene el equipo se toma el parametro de entrada
     //
+
     const currentTeamLevel = getCurrentTeamLevel(playerTeam, playerLevel); // Se obtiene el nivel del jugador dentro de los niveles de su equipo
 
     if (!teamsTotals[playerTeam]) { // Si no esta definido el equipo en el objeto de acumulados totales, se establece el objeto con sus propiedades
@@ -93,9 +100,18 @@ controller.calculatePlayerSalary = (req, res, next) => {
   // Debido a que el codigo fuente esta en ingles y el JSON está en espanol, se extraen los valores en variables para no mesclar el ingles con el espanol
   const players = req.body.jugadores; // Se obtiene el objeto con la información del JSON de datos de entrada
   //
-  const playersResult = calculateSalaries(players, null); // Calcular los sueldos de la lista de jugadores
+  //console.log(players);
+  try {
 
-  res.json(playersResult); // Retorna la respuesta al frontend
+    if (validatePlayersData(players)) {
+
+      const playersResult = calculateSalaries(players, null); // Calcular los sueldos de la lista de jugadores
+      return res.json(playersResult); // Retorna la respuesta al frontend
+    }
+  } catch (err) {
+    //sendErrorResponse(req, res, 'error detectado js ' + err);
+    next(err);
+  }
 
 } // end: controller.calculatePlayerSalary = (req, res, next) => {
 
@@ -109,23 +125,33 @@ controller.calculateTeamsSalary = (req, res, next) => {
   // Debido a que el codigo fuente esta en ingles y el JSON está en espanol, se extraen los valores en variables para no mesclar el ingles con el espanol
   const teams = req.body.equipos; // Se obtiene el objeto con la información del JSON de datos de entrada
 
-  // Recorrer la lista de equipos recibida
-  const teamsResult = teams.map((team, index) => {
+  try {
 
-    // Debido a que el codigo fuente esta en ingles y el JSON está en espanol, se extraen los valores en variables para no mesclar el ingles con el espanol
-    const players = team.jugadores;
-    const teamName = team.nombre;
+    // validar
+    if (validateTeamsData(teams)) {
+      // Recorrer la lista de equipos recibida
+      const teamsResult = teams.map((team, index) => {
 
-    const playersResult = calculateSalaries(players, teamName); // Calcular los sueldos de la lista de jugadores
+        // Debido a que el codigo fuente esta en ingles y el JSON está en espanol, se extraen los valores en variables para no mesclar el ingles con el espanol
+        const players = team.jugadores;
+        const teamName = team.nombre;
 
-    return {
-      ...team, // Los datos del equipo que no cambiaron
-      jugadores: playersResult // La nueva lista de jugadores con los sueldos calculados
-    };
+        const playersResult = calculateSalaries(players, teamName); // Calcular los sueldos de la lista de jugadores
 
-  });
+        return {
+          ...team, // Los datos del equipo que no cambiaron
+          jugadores: playersResult // La nueva lista de jugadores con los sueldos calculados
+        };
 
-  res.json(teamsResult); // Retorna la respuesta al frontend
+      });
+
+      res.json(teamsResult); // Retorna la respuesta al frontend
+    }
+
+  } catch (err) {
+    next(err);
+  }
+
 
 }; // end: controller.calculateTeamsSalary = (req, res, next) => {
 
