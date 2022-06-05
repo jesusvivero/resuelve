@@ -5,7 +5,7 @@ const getCurrentTeamLevel = (teamLevels, playerTeam, playerLevel) => {
   //console.log(levels);
   if (!teamLevels) return;
 
-  const team = teamLevels.find(team => (team.nombre === playerTeam));
+  const team = teamLevels.find(team => (team.nombre.toLowerCase() === playerTeam.toLowerCase()));
   if (!team) return;
 
   const level = team.niveles.find(({ nivel }) => (nivel === playerLevel));

@@ -7,7 +7,7 @@ const getLocalTeamsLevels = () => {
 
   try {
 
-    const jsonData = require('../data/teams-levels-bad.json'); // Cargar JSON con la configuracion de niveles por equipo
+    const jsonData = require('../data/teams-levels-example2.json'); // Cargar JSON con la configuracion de niveles por equipo
     //console.log(jsonData);
 
     // Validar que contenga los equipos
