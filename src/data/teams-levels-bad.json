@@ -1,44 +1,44 @@
 {
-  "teams": [
+  "equipos": [
     {
-      "name": "azul",
-      "levels": [
+      "nombre": "azul",
+      "niveles": [
         {
-          "level": "A",
-          "goals": 5
+          "nivel": "A",
+          "goles": 5
         },
         {
-          "level": "B",
-          "goals": 10
+          "nivel": "B",
+          "goles": 10
         },
         {
-          "level": "C",
-          "goals": 15
+          "nivel": "C",
+          "goles": 15
         },
         {
-          "level": "Cuauh",
-          "goals": 20
+          "nivel": "Cuauh",
+          "goles": 20
         }
       ]
     },
     {
-      "name": "rojo",
-      "levels": [
+      "nombre": "rojo",
+      "niveles": [
         {
-          "level": "A",
-          "goals": 6
+          "nivel": "A",
+          "goles": 6
         },
         {
-          "level": "B",
-          "goals": 12
+          "nivel": "B",
+          "goles": 12
         },
         {
-          "level": "C",
-          "goals": 19
+          "nivel": "C",
+          "goles": 19
         },
         {
-          "level": "Cuauh",
-          "goals": 28
+          "nivel": "Cuauh",
+          "goles": 28
         }
       ]
     }

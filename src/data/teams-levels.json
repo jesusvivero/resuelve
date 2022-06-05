@@ -1,8 +1,8 @@
 {
-  "teams": [
+  "equipos": [
     {
-      "name": "azul",
-      "levels": [
+      "nombre": "azul",
+      "niveles": [
         {
           "level": "A",
           "goals": 5
@@ -22,8 +22,8 @@
       ]
     },
     {
-      "name": "rojo",
-      "levels": [
+      "nombre": "rojo",
+      "niveles": [
         {
           "level": "A",
           "goals": 6

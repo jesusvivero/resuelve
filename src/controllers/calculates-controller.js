@@ -1,10 +1,11 @@
 const customRound = require('../helpers/custom-round');
-const { getCurrentTeamLevel } = require('../data/teams-levels');
-//const genError = require('../helpers/error');
+const localTeamsLevels = require('../services/local-teams-levels-service');
+const { getCurrentTeamLevel } = require('../services/teams-levels-service');
+const genError = require('../helpers/error');
 //const { sendErrorResponse } = require('../helpers/send-response');
 
 const { validatePlayersData, validateTeamsData } = require('../helpers/json-validations');
-//const { validateNumber, validateIngeter, validateObjectProperty } = require('../helpers/type-validations');
+const { validateObjectProperty } = require('../helpers/type-validations');
 
 // Declaracion del controlador que sera exportado
 const controller = {};
@@ -13,10 +14,9 @@ const controller = {};
 
 
 
-
-
 // Proceso para calcular los sueldos de la lista de jugadores
-const calculateSalaries = (players, teamName) => {
+//const calculateSalaries = (players, teamName, teamLevels) => {
+const calculateSalaries = (players, teamName, teamLevels) => {
 
   const teamsTotals = new Object(); // Objeto de niveles por equipos
   let playersResult; // Para el Array de jugadores mutable
@@ -25,12 +25,31 @@ const calculateSalaries = (players, teamName) => {
   playersResult = players.map((player, index) => {
 
     // Debido a que el codigo fuente esta en ingles y el JSON está en espanol, se extraen los valores en variables para no mesclar el ingles con el espanol
+    const playerName = player.nombre;
     const playerGoals = player.goles;
     const playerLevel = player.nivel;
-    const playerTeam = player.equipo || teamName; // Si el jugador no tiene el equipo se toma el parametro de entrada
-    //
+    const playerTeam = player.equipo !== undefined ? player.equipo : teamName; // Si el jugador no tiene el equipo se toma el parametro de entrada
 
-    const currentTeamLevel = getCurrentTeamLevel(playerTeam, playerLevel); // Se obtiene el nivel del jugador dentro de los niveles de su equipo
+    let levels = [];
+    if (teamLevels) {
+      levels.push({
+        nombre: teamName,
+        niveles: teamLevels
+      });
+    } else {
+      //levels.push(localTeamsLevels.slice());
+      levels = localTeamsLevels.slice();
+    }
+    //const  = (team || localTeamsLevels);
+    //
+    //console.log('team', teamLevels);
+    //console.log('local', localTeamsLevels);
+    //console.log('union', levels);
+    if (!levels) return genError(`No se definió ni se encontró en el sistema una lista de niveles para el equipo '${playerTeam}.'`);
+    //
+    const currentTeamLevel = getCurrentTeamLevel(levels, playerTeam, playerLevel); // Se obtiene el nivel del jugador dentro de los niveles de su equipo
+    console.log(currentTeamLevel);
+    if (!currentTeamLevel) return genError(`El nivel <${playerLevel}> del jugador '${playerName}' no está definido en los parámetros de medición para el equipo <${playerTeam}>`);
 
     if (!teamsTotals[playerTeam]) { // Si no esta definido el equipo en el objeto de acumulados totales, se establece el objeto con sus propiedades
       teamsTotals[playerTeam] = {
@@ -44,14 +63,24 @@ const calculateSalaries = (players, teamName) => {
 
     // Acumular valores totales por equipo
     teamsTotals[playerTeam].totalPlayerGoals = (teamsTotals[playerTeam].totalPlayerGoals || 0) + playerGoals; // total goles de los jugadores dentro del equipo
-    teamsTotals[playerTeam].totalGoalsLevels = (teamsTotals[playerTeam].totalGoalsLevels || 0) + currentTeamLevel.goals; // total de meta de goles de los jugadores segun nivel del equipo
+    teamsTotals[playerTeam].totalGoalsLevels = (teamsTotals[playerTeam].totalGoalsLevels || 0) + currentTeamLevel.goles; // total de meta de goles de los jugadores segun nivel del equipo
 
-    const goalsPercentage = playerGoals / currentTeamLevel.goals; // Porcentaje de goles del jugador segun nivel del equipo
+    const goalsPercentage = playerGoals / currentTeamLevel.goles; // Porcentaje de goles del jugador segun nivel del equipo
 
-    return { // Retorna el objeto con los datos del jugador
-      ...player,
+    const playerData = {
+      nombre: player.nombre,
+      goles_minimos: currentTeamLevel.goles,
+      goles: player.goles,
+      sueldo: player.sueldo,
+      bono: player.bono,
+      sueldo_completo: player.sueldo_completo,
+      //equipo: player.equipo,
       goalsPercentage // Se agrega nueva propiedad al jugador para usar en el calculo del bono posteriormente
     };
+
+    if (validateObjectProperty(player, 'equipo')) playerData.equipo = player.equipo;
+
+    return playerData; // Retorna los datos del jugador
 
   });
 
@@ -103,11 +132,13 @@ controller.calculatePlayerSalary = (req, res, next) => {
   //console.log(players);
   try {
 
-    if (validatePlayersData(players)) {
+    const message = validatePlayersData(players);
 
-      const playersResult = calculateSalaries(players, null); // Calcular los sueldos de la lista de jugadores
-      return res.json(playersResult); // Retorna la respuesta al frontend
-    }
+    if (message !== 'OK') genError(message);
+
+    const playersResult = calculateSalaries(players); // Calcular los sueldos de la lista de jugadores
+    return res.json(playersResult); // Retorna la respuesta al frontend
+
   } catch (err) {
     //sendErrorResponse(req, res, 'error detectado js ' + err);
     next(err);
@@ -128,25 +159,29 @@ controller.calculateTeamsSalary = (req, res, next) => {
   try {
 
     // validar
-    if (validateTeamsData(teams)) {
-      // Recorrer la lista de equipos recibida
-      const teamsResult = teams.map((team, index) => {
+    const message = validateTeamsData(teams, true);
+    if (message !== 'OK') genError(message);
 
-        // Debido a que el codigo fuente esta en ingles y el JSON está en espanol, se extraen los valores en variables para no mesclar el ingles con el espanol
-        const players = team.jugadores;
-        const teamName = team.nombre;
+    // Recorrer la lista de equipos recibida
+    const teamsResult = teams.map((team, index) => {
 
-        const playersResult = calculateSalaries(players, teamName); // Calcular los sueldos de la lista de jugadores
+      // Debido a que el codigo fuente esta en ingles y el JSON está en espanol, se extraen los valores en variables para no mesclar el ingles con el espanol
+      const teamName = team.nombre;
+      const teamLevels = team.niveles;
+      const teamPlayers = team.jugadores;
 
-        return {
-          ...team, // Los datos del equipo que no cambiaron
-          jugadores: playersResult // La nueva lista de jugadores con los sueldos calculados
-        };
+      //const playersResult = calculateSalaries(teamPlayers, teamName, teamLevels); // Calcular los sueldos de la lista de jugadores
+      const playersResult = calculateSalaries(teamPlayers, teamName, teamLevels); // Calcular los sueldos de la lista de jugadores
 
-      });
+      return {
+        //...team, // Los datos del equipo que no cambiaron
+        nombre: teamName,
+        jugadores: playersResult // La nueva lista de jugadores con los sueldos calculados
+      };
 
-      res.json(teamsResult); // Retorna la respuesta al frontend
-    }
+    });
+
+    res.json(teamsResult); // Retorna la respuesta al frontend
 
   } catch (err) {
     next(err);

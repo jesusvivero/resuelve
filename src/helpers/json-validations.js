@@ -1,127 +1,175 @@
 const { validateObjectProperty, validateNumber, validateIngeter } = require('../helpers/type-validations');
-const { getCurrentTeamLevel } = require('../data/teams-levels');
+//const { getCurrentTeamLevel } = require('../services/teams-levels-service');
 
 
+
+// Para validar los datos de las listas de niveles
+function validateLevelsData(levels) {
+
+  // Validar que los niveles sean un array
+  if (!Array.isArray(levels) || levels.length === 0)
+    return `La lista de niveles no tiene el formato apropiado.`;
+
+  // Recorremos todos los niveles del equipo
+  for (let level of levels) {
+
+    // Validar que contenga una propiedad del nivel y que sea texto
+    if (!validateObjectProperty(level, 'nivel'))
+      return `No se encontró la propiedad <nivel> en la lista de niveles.`;
+
+    if ((typeof level.nivel).toLowerCase() !== 'string')
+      return `El nivel <${level.nivel}> de la lista de niveles no tiene el formato apropiado.`;
+
+    // Validar que tenga la propiedad de goles del nivel y sea un valor numérico entero y positivo
+    if (!validateObjectProperty(level, 'goles'))
+      return `No se encontró la propiedad <goles> del nivel '${level.nivel}'.`;
+
+    if ((typeof level.goles).toLowerCase() !== 'number')
+      return `La cantidad de goles del nivel '${level.nivel}' no es numérica.`;
+
+    if (!validateIngeter(level.goles) || level.goles < 0)
+      return `La cantidad de goles <${level.goles}> del nivel '${level.nivel}' no es un número entero positivo.`;
+
+  };
+
+  return 'OK'; // retorna 'OK' si todo está bien.
+
+} // end: function validateLevelsData(levels) {
 
 
 
 // Para validar los datos necesarios de la lista de jugadores
-function validatePlayersData(players, teamName) {
+function validatePlayersData(players, teamName/*, teamLevels*/) {
 
   // Validar que player sea un array
   if (!Array.isArray(players) || players.length === 0)
-    genError('La lista de jugadores es inválida');
+    return 'La lista de jugadores no tiene el formato apropiado';
 
   // Se recorre el listado de jugadores para validación
-  players.map(player => {
+  for (player of players) {
 
     //const playerName = player.nombre; // Si no viene la propiedad del nombre la seteamos vacia
-    const playerTeam = player.equipo || teamName; // Si el jugador no tiene el equipo se toma el parametro de entrada
+    const playerTeam = player.equipo !== undefined ? player.equipo : teamName; // Si el jugador no tiene el equipo se toma el parametro de entrada
 
     // Validar el nombre del jugador
     if (!validateObjectProperty(player, 'nombre'))
-      genError('No se encontró la propiedad <nombre> del jugador.');
+      return 'No se encontró la propiedad <nombre> del jugador.';
 
     if ((typeof player.nombre).toLowerCase() !== 'string' || player.nombre === "")
-      genError(`El nombre <${player.nombre}> del jugador es inválido.`);
+      return `El nombre <${player.nombre}> del jugador no tiene el formato apropiado.`;
 
 
     // Validar los goles del jugador
     if (!validateObjectProperty(player, 'goles'))
-      genError(`No se encontró la propiedad <goles> del jugador '${player.nombre}'.`);
+      return `No se encontró la propiedad <goles> del jugador '${player.nombre}'.`;
 
     if ((typeof player.goles).toLowerCase() !== 'number')
-      genError(`La cantidad de goles que marcó el jugador '${player.nombre}' no es numérica.`);
+      return `La cantidad de goles que marcó el jugador '${player.nombre}' no es numérica.`;
 
     if (!validateIngeter(player.goles) || player.goles < 0)
-      genError(`La cantidad de goles <${player.goles}> que marcó el jugador '${player.nombre}' es inválida.`);
+      return `La cantidad de goles <${player.goles}> que marcó el jugador '${player.nombre}' no es un número entero positivo.`;
 
 
     // Validar el nivel del jugador
     if (!validateObjectProperty(player, 'nivel'))
-      genError(`No se encontró la propiedad <nivel> del jugador '${player.nombre}'.`);
+      return `No se encontró la propiedad <nivel> del jugador '${player.nombre}'.`;
 
     if ((typeof player.nivel).toLowerCase() !== 'string' || player.nivel === "")
-      genError(`El nivel <${player.nivel}> del jugador '${player.nombre}' es inválido.`);
+      return `El nivel <${player.nivel}> del jugador '${player.nombre}' no tiene el formato apropiado.`;
 
 
     // Validar el equipo del jugador
     if (!playerTeam)
-      genError(`No se definió el equipo del jugador '${player.nombre}'.`);
+      return`No se definió el equipo del jugador '${player.nombre}'.`;
 
     if ((typeof playerTeam).toLowerCase() !== 'string' || playerTeam === "")
-      genError(`El equipo del jugador '${player.nombre}' es inválido.`);
+      return `El equipo del jugador '${player.nombre}' no tiene el formato apropiado.`;
 
 
     // Validar el sueldo del jugador
     if (!validateObjectProperty(player, 'sueldo'))
-      genError(`No se encontró la propiedad <sueldo> del jugador '${player.nombre}'.`);
+      return `No se encontró la propiedad <sueldo> del jugador '${player.nombre}'.`;
 
     if ((typeof player.sueldo).toLowerCase() !== 'number')
-      genError(`El sueldo del jugador '${player.nombre}' no es numérico.`);
+      return `El sueldo del jugador '${player.nombre}' no es numérico.`;
 
     if (!validateNumber(player.sueldo) || player.sueldo < 0)
-      genError(`El Sueldo <${player.sueldo}> del jugador '${player.nombre}' es inválido.`);
+      return `El Sueldo <${player.sueldo}> del jugador '${player.nombre}' no es un número positivo.`;
 
     // Validar el bono del jugador
     if (!validateObjectProperty(player, 'bono'))
-      genError(`No se encontró la propiedad <bono> del jugador '${player.nombre}'.`);
+      return `No se encontró la propiedad <bono> del jugador '${player.nombre}'.`;
 
     if ((typeof player.bono).toLowerCase() !== 'number')
-      genError(`El bono del jugador '${player.nombre}' no es numérico.`);
+      return `El bono del jugador '${player.nombre}' no es numérico.`;
 
     if (!validateNumber(player.bono) || player.bono < 0)
-      genError(`El Bono <${player.bono}> del jugador '${player.nombre}' es inválido.`);
+      return `El Bono <${player.bono}> del jugador '${player.nombre}' no es un número positivo.`;
 
+    /*
     // Validar el nivel del jugador este permitido en la lista de configuracion del equipo
-    const currentTeamLevel = getCurrentTeamLevel(playerTeam, player.nivel); // Se obtiene el nivel del jugador dentro de los niveles de su equipo
-    console.log(currentTeamLevel);
+    const currentTeamLevel = getCurrentTeamLevel(playerTeam, player.nivel, teamLevels); // Se obtiene el nivel del jugador dentro de los niveles de su equipo
+
     if (!currentTeamLevel)
-      genError(`El nivel <${player.nivel}> del jugador '${player.nombre}' no está definido en los parámetros de medición para el equipo <${playerTeam}>`);
+      return `El nivel <${player.nivel}> del jugador '${player.nombre}' no está definido en los parámetros de medición para el equipo <${playerTeam}>`;
+    */
+  };
 
-  });
-
-  return true; // retorna true si todo está ok
+  return 'OK'; // retorna 'OK' si todo está bien
 
 } // end: function validatePlayersData(players, teamName) {
 
 
+
 // Para validar los datos necesarios de la lista de equipos
-function validateTeamsData(teams) {
+function validateTeamsData(teams, withPlayers) {
 
   // Validar que player sea un array
   if (!Array.isArray(teams) || teams.length === 0)
-    genError('La lista de equipos es inválida');
+    return 'La lista de equipos no tiene el formato apropiado';
 
   // Recorrer la lista de equipos recibida
-  const teamsResult = teams.map(team => {
+  for (team of teams) {
 
     // Validar que tenga nombre el equipo
     if (!validateObjectProperty(team, 'nombre'))
-      genError('No se encontró la propiedad <nombre> del equipo');
+      return 'No se encontró la propiedad <nombre> del equipo';
 
     if ((typeof team.nombre).toLowerCase() !== 'string' || team.nombre === "")
-      genError(`El nombre <${team.nombre}> del equipo es inválido.`);
+      return `El nombre <${team.nombre}> del equipo no tiene el formato apropiado.`;
 
 
-    // Validar lista de jugadores
-    if (!validateObjectProperty(team, 'jugadores'))
-      genError(`No se encontró la propiedad <jugadores> del equipo '${team.nombre}'.`);
+    // Verificar si el equipo trae la lista de niveles incluida
+    if (validateObjectProperty(team, 'niveles')) {
+      const res = validateLevelsData(team.niveles);
+      if (res !== 'OK') return `Error en equipo '${team.nombre}': ${res}`;
+    }
 
-    if (!validateObjectProperty(team, 'jugadores') || !Array.isArray(team.jugadores) || team.jugadores.length === 0)
-      genError(`La lista de jugadores <${team.jugadores}> del equipo '${team.nombre}' es inválida.`);
 
-    return validatePlayersData(team.jugadores, team.nombre);
+    // Si se debe validar lista de jugadores
+    if (withPlayers) {
+      // Validar lista de jugadores
+      if (!validateObjectProperty(team, 'jugadores'))
+        return `No se encontró la propiedad <jugadores> del equipo '${team.nombre}'.`;
 
-  });
+      /*if (!validateObjectProperty(team, 'jugadores') || !Array.isArray(team.jugadores) || team.jugadores.length === 0)
+        return `La lista de jugadores <${team.jugadores}> del equipo '${team.nombre}' es inválida.`;*/
 
-  return true; // retorna true si todo está ok
+      const res = validatePlayersData(team.jugadores, team.nombre, team.niveles);
+      if (res !== 'OK') return `Error en equipo '${team.nombre}': ${res}`;
+
+    }
+
+  };
+
+  return 'OK'; // retorna 'OK' si todo está bien
 
 } // end: function validateTeamsData(teams) {
 
 
 
 module.exports = {
+  validateLevelsData,
   validatePlayersData,
   validateTeamsData
 }
