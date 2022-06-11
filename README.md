@@ -10,7 +10,7 @@ El API recibe y retorna un JSON con determinadas estructuras y la información c
 
 1. Clonar el repositorio.
 
-`$ git clone url`
+`$ git clone https://github.com/jesusvivero/resuelve`
 
 2. Ubicarse dentro del directorio donde está ubicado el archivo 'package.json'.
 
@@ -26,7 +26,7 @@ El API recibe y retorna un JSON con determinadas estructuras y la información c
 `SERVER_HOST=localhost`
 
 ###### Puerto por donde se ejecuta nuestra API, por ejemplo
-`SERVER_PORT=4000`
+`SERVER_PORT=5500`
 
 2. Configurar el archivo `teams-levels-conf.json` que se encuentra en '.../src/data/', en el se definen los equipos y niveles por defecto (Que se usan en caso de que no se definan en el json que recibe nuestra API)
 
@@ -103,10 +103,11 @@ A continuación se muestra un ejemplo:
 
 2. Iniciar la ejecución del proyecto
 
-`npm run prod`
+`npm start`
 
 ## Cómo se usa
 
+Nuestra API cuenta con 2 tipos de cálculo, uno por listado de jugadores `http://localhost:5500/api/calculate/players/` y otro por listado de equipos `http://localhost:5500/api/calculate/teams/`.
 A través del frontend o una aplicación Rest Client como Postman se envia contenido JSON mediante peticiones POST
 
 #### Entrada
@@ -438,6 +439,7 @@ El API retornará un JSON con la información de los jugadores incluyendo el val
         "bono": 16000,
         "sueldo_completo": 49000
       }
+      ...
     ]
   },
   {
@@ -459,7 +461,9 @@ El API retornará un JSON con la información de los jugadores incluyendo el val
         "bono": 10000,
         "sueldo_completo": 25875
       }
+      ...
     ]
   }
+  ...
 ]
 ```
