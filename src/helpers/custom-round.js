@@ -1,6 +1,13 @@
+/*
+
+- custom-round.js -
+Modulo de redondeo de cifras personalizado
+
+*/
+
 module.exports = function (number, decimals) {
-  //if (isNaN(number) || isNaN(decimals)) return null;
+  // Validar que las entradas sean numericas
   if (typeof number !== 'number' && typeof decimals !== 'number') return null;
-  //return Number(Math.round(number + `e${decimals}`) + `e-${decimals}`);
+
   return Number.parseFloat(number.toFixed(decimals));
 }

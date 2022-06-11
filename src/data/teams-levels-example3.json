@@ -1,0 +1,47 @@
+{
+  "equipos": [
+    {
+      "nombre": "Las Aguilas",
+      "niveles": [
+        {
+          "nivel": "A",
+          "goles": 1
+        },
+        {
+          "nivel": "B",
+          "goles": 2
+        },
+        {
+          "nivel": "C",
+          "goles": 3
+        },
+        {
+          "nivel": "Cuauh",
+          "goles": 4
+        }
+      ]
+    },
+    {
+      "nombre": "Sporting FC",
+      "niveles": [
+        {
+          "nivel": "A",
+          "goles": 5
+        },
+        {
+          "nivel": "B",
+          "goles": 6
+        },
+        {
+          "nivel": "C",
+          "goles": 7
+        },
+        {
+          "nivel": "Cuauh",
+          "goles": 8
+        }
+      ]
+    }
+
+  ]
+}

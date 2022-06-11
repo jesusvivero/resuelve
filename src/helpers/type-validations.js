@@ -1,12 +1,21 @@
-function validateObjectProperty(object, property){
-  return (typeof object !== 'undefined' && object.hasOwnProperty(property));
+/*
+
+- type-validations.js -
+Modulo de funciones para validar tipos de datos
+
+*/
+
+// Para validar si un objeto tiene una propiedad especifica
+function validateObjectProperty(object, property) {
+  return ((typeof object).toLowerCase() !== 'undefined' && object.hasOwnProperty(property));
 }
 
+// Validar si es numerico
 function validateNumber(number) {
-  //console.log(typeof number);
-  return (typeof number === 'number'/* && !isNaN(number)*/);
+  return ((typeof number).toLowerCase() === 'number');
 }
 
+// Validar si es numerico y entero
 function validateIngeter(number) {
   if (!validateNumber(number)) return false;
   return (number % 1 === 0);

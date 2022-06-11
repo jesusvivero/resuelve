@@ -1,3 +1,10 @@
+/*
+
+- local-teams-levels-service.js -
+Modulo de servicio para los procesos del archivo de configuracion de niveles por equipos (local)
+
+*/
+
 const { validateObjectProperty } = require('../helpers/type-validations');
 const { validateTeamsData } = require('../helpers/json-validations');
 
@@ -7,8 +14,7 @@ const getLocalTeamsLevels = () => {
 
   try {
 
-    const jsonData = require('../data/teams-levels-example2.json'); // Cargar JSON con la configuracion de niveles por equipo
-    //console.log(jsonData);
+    const jsonData = require('../data/teams-levels-conf.json'); // Cargar JSON con la configuracion de niveles por equipo
 
     // Validar que contenga los equipos
     if (!validateObjectProperty(jsonData, 'equipos')) {
@@ -38,6 +44,7 @@ const getLocalTeamsLevels = () => {
 
 
 const localTeamsLevels = getLocalTeamsLevels(); // Se carga la lista de configuracion de equipos
-//console.log(teamsList);
 
-module.exports = localTeamsLevels; // Se carga la lista de configuracion de equipos
+
+
+module.exports = localTeamsLevels; // Se exporta la lista de configuracion de equipos

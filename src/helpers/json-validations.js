@@ -1,3 +1,10 @@
+/*
+
+- json-validations.js -
+Modulo de validaciones de los datos JSON para el calculo de los salarios de los jugadores
+
+*/
+
 const { validateObjectProperty, validateNumber, validateIngeter } = require('../helpers/type-validations');
 //const { getCurrentTeamLevel } = require('../services/teams-levels-service');
 
@@ -39,16 +46,15 @@ function validateLevelsData(levels) {
 
 
 // Para validar los datos necesarios de la lista de jugadores
-function validatePlayersData(players, teamName/*, teamLevels*/) {
+function validatePlayersData(players, teamName) {
 
   // Validar que player sea un array
   if (!Array.isArray(players) || players.length === 0)
-    return 'La lista de jugadores no tiene el formato apropiado';
+    return 'La lista de jugadores no está definida o no tiene el formato apropiado';
 
   // Se recorre el listado de jugadores para validación
   for (player of players) {
 
-    //const playerName = player.nombre; // Si no viene la propiedad del nombre la seteamos vacia
     const playerTeam = player.equipo !== undefined ? player.equipo : teamName; // Si el jugador no tiene el equipo se toma el parametro de entrada
 
     // Validar el nombre del jugador
@@ -106,13 +112,6 @@ function validatePlayersData(players, teamName/*, teamLevels*/) {
     if (!validateNumber(player.bono) || player.bono < 0)
       return `El Bono <${player.bono}> del jugador '${player.nombre}' no es un número positivo.`;
 
-    /*
-    // Validar el nivel del jugador este permitido en la lista de configuracion del equipo
-    const currentTeamLevel = getCurrentTeamLevel(playerTeam, player.nivel, teamLevels); // Se obtiene el nivel del jugador dentro de los niveles de su equipo
-
-    if (!currentTeamLevel)
-      return `El nivel <${player.nivel}> del jugador '${player.nombre}' no está definido en los parámetros de medición para el equipo <${playerTeam}>`;
-    */
   };
 
   return 'OK'; // retorna 'OK' si todo está bien
@@ -122,7 +121,7 @@ function validatePlayersData(players, teamName/*, teamLevels*/) {
 
 
 // Para validar los datos necesarios de la lista de equipos
-function validateTeamsData(teams, withPlayers) {
+function validateTeamsData(teams, requiredLevels, requiredPlayers) { //withPlayer: true o false para validar o no si el equipo tiene lista de jugadores incluida
 
   // Validar que player sea un array
   if (!Array.isArray(teams) || teams.length === 0)
@@ -138,24 +137,22 @@ function validateTeamsData(teams, withPlayers) {
     if ((typeof team.nombre).toLowerCase() !== 'string' || team.nombre === "")
       return `El nombre <${team.nombre}> del equipo no tiene el formato apropiado.`;
 
-
     // Verificar si el equipo trae la lista de niveles incluida
     if (validateObjectProperty(team, 'niveles')) {
-      const res = validateLevelsData(team.niveles);
+      const res = validateLevelsData(team.niveles); // Validar la estructura definida para la lista de niveles del equipo
       if (res !== 'OK') return `Error en equipo '${team.nombre}': ${res}`;
+    } else {
+      if (requiredLevels) return `No se encontró la propiedad <niveles> del equipo '${team.nombre}'`;
     }
 
 
     // Si se debe validar lista de jugadores
-    if (withPlayers) {
+    if (requiredPlayers) {
       // Validar lista de jugadores
       if (!validateObjectProperty(team, 'jugadores'))
         return `No se encontró la propiedad <jugadores> del equipo '${team.nombre}'.`;
 
-      /*if (!validateObjectProperty(team, 'jugadores') || !Array.isArray(team.jugadores) || team.jugadores.length === 0)
-        return `La lista de jugadores <${team.jugadores}> del equipo '${team.nombre}' es inválida.`;*/
-
-      const res = validatePlayersData(team.jugadores, team.nombre, team.niveles);
+      const res = validatePlayersData(team.jugadores, team.nombre);
       if (res !== 'OK') return `Error en equipo '${team.nombre}': ${res}`;
 
     }
@@ -164,7 +161,7 @@ function validateTeamsData(teams, withPlayers) {
 
   return 'OK'; // retorna 'OK' si todo está bien
 
-} // end: function validateTeamsData(teams) {
+} // end: function validateTeamsData(teams, withPlayers) {
 
 
 
